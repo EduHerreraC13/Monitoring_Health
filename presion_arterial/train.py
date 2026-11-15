@@ -116,6 +116,11 @@ def main(argv=None) -> dict:
     (out / "metrics.json").write_text(json.dumps(to_jsonable({"args": vars(args), "results": res, "history": history}), indent=2), encoding="utf-8")
     (out / "splits.json").write_text(json.dumps({k: sorted(set(raw.subject[v].tolist())) for k, v in split.items()}, indent=2), encoding="utf-8")
     print(f"Guardado en {out}/ (best.pt, metrics.json, splits.json)")
+    try:
+        from .report import write_report
+        print(f"Panel de visualización: {write_report(out)}  (ábrelo en el navegador)")
+    except Exception as e:                       # el panel es accesorio: nunca debe romper el entrenamiento
+        print(f"(No se pudo generar el panel: {e})")
     return res
 
 

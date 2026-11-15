@@ -84,3 +84,12 @@ def test_adapter_vitasense_contract(trained):
     assert np.isfinite([sbp, dbp]).all() and 30 < sbp < 300
     sbp2, dbp2 = model.predict_pulse(np.random.default_rng(1).standard_normal(300), 30.0)   # 10 s a 30 Hz
     assert np.isfinite([sbp2, dbp2]).all()
+
+
+def test_dashboard_embeds_real_results(trained):
+    from presion_arterial.report import MARK, write_report
+    out, _ = trained
+    html = (out / "dashboard.html").read_text(encoding="utf-8")        # lo genera train.py
+    assert MARK not in html and '"blocks"' in html and '"synthetic": true' in html
+    ext = write_report(out, out / "otro.html")
+    assert ext.exists()

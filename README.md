@@ -35,6 +35,7 @@ PPG de contacto (125 Hz) + PA de referencia        <- datasets públicos (PulseD
 | `presion_arterial/train.py` | Entrenamiento y evaluación contra el predictor trivial |
 | `presion_arterial/evaluate.py` | Validación externa de un checkpoint en otro dataset |
 | `presion_arterial/metrics.py` | ME ± DE, MAE, r, BHS, criterio 5 ± 8 mmHg, evaluación calibrada |
+| `presion_arterial/report.py` + `web/dashboard.html` | Panel web de visualización de resultados |
 | `presion_arterial/vitasense_adapter.py` | `DeepBPModel`: se conecta a `BloodPressureEstimator` de VitaSense |
 | `presion_arterial/synthetic.py` | Datos de juguete **solo** para probar el pipeline |
 | `scripts/prepare_dataset.py` | Convierte HDF5 / MAT v7.3 al formato `.npz` |
@@ -79,6 +80,22 @@ est = BloodPressureEstimator(DeepBPModel("runs/exp1/best.pt"),
 ```
 `DeepBPModel` cumple el contrato `predict(feats, window)` (ventana de 750 muestras, 6 s a 125 Hz) que ya usa
 `rppg/bp.py`. VitaSense seguirá sin mostrar un número si falta modelo **o** calibración.
+
+## Panel web de visualización
+
+Cada entrenamiento genera un panel `.html` autocontenido con los resultados reales: modelo vs. predictor trivial
+(SBP y DBP), métricas, calibración con 1 lectura, curva de error por época y los sujetos por conjunto.
+
+```bash
+python -m presion_arterial.train --synthetic --epochs 10 --out runs/demo   # crea runs/demo/dashboard.html
+python -m presion_arterial.report --run runs/demo                           # regenerarlo
+python -m presion_arterial.evaluate --ckpt runs/demo/best.pt --data data/otro.npz --json runs/demo/externa.json
+python -m presion_arterial.report --run runs/demo --external runs/demo/externa.json   # añade la validación externa
+```
+
+Se abre con doble clic en el navegador (sin servidor). La plantilla es `presion_arterial/web/dashboard.html`; abierta
+directamente, muestra un ejemplo sintético y el simulador de degradación de la señal. El panel **solo visualiza
+resultados**: no ejecuta el modelo ni muestra una presión arterial "medida".
 
 ## Cómo leer los resultados (importante)
 
