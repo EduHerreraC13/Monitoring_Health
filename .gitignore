@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+runs/
+data/
+*.npz
+*.pt
+*.h5
+*.mat
